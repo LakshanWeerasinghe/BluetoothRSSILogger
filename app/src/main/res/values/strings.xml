@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">BluetoothRSSILogger</string>
+    <string name="turn_on">Turn On</string>
+    <string name="turn_off">turn off</string>
+    <string name="discoverable">Discoverable</string>
+    <string name="get_paired_devices">Get Paired Devices</string>
+    <string name="view_rssi">View RSSI</string>
+</resources>
