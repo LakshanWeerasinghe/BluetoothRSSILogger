@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="scanBtn" type="id" />
+    <item name="scanDevTv" type="id" />
+    <item name="scanDevLv" type="id" />
+</resources>
