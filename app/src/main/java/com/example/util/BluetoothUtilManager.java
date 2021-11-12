@@ -7,11 +7,11 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
-import android.widget.ArrayAdapter;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 
@@ -20,6 +20,7 @@ public class BluetoothUtilManager {
 
     private static BluetoothUtilManager bluetoothUtilManager = null;
     private final BluetoothAdapter bluetoothAdapter;
+    private Integer value;
 
     private BluetoothUtilManager() {
         this.bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -66,9 +67,9 @@ public class BluetoothUtilManager {
         }
     }
 
-    public void scanForRssiValue(String macAddress, ArrayAdapter<String> arrayAdapter,
-                                 List<String> rssiValueList) {
-        if (bluetoothAdapter.isEnabled()) {
+    public Integer scanForRssiValue(String macAddress) {
+        value = 1500;
+        if (true) {
 
             // Changed by Kevin for the deprecated api call
             ArrayList<ScanFilter> scanFilters = new ArrayList<ScanFilter>() {{
@@ -78,6 +79,8 @@ public class BluetoothUtilManager {
                 ScanFilter filter = new ScanFilter.Builder().setDeviceAddress(macAddress).build();
                 scanFilters.add(filter);
             }*/
+
+            final Integer[] rssi = new Integer[1];
             ScanSettings settings = new ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build();
             bluetoothAdapter.getBluetoothLeScanner().startScan(scanFilters, settings, new ScanCallback() {
                 @Override
@@ -86,15 +89,12 @@ public class BluetoothUtilManager {
                     if (result.getScanRecord() == null || result.getScanRecord().getBytes() == null) {
                         return;
                     }
+//                    if (result.getDevice().getAddress().equals(macAddress)) {
+                        rssi[0] = result.getRssi();
+                        value = result.getRssi();
+//                    }
 
-                    if (Util.isBeacon(result.getScanRecord().getBytes())) {
-                        if(result.getDevice().getAddress().equals(macAddress)){
-                            Integer rssi = result.getRssi();
-                            rssiValueList.add(rssi.toString());
-                            arrayAdapter.add(rssi.toString());
-                        }
 
-                    }
                 }
 
                 @Override
@@ -102,20 +102,23 @@ public class BluetoothUtilManager {
                     super.onScanFailed(errorCode);
                 }
             });
-        } else {
-            bluetoothAdapter.getBluetoothLeScanner().stopScan(new ScanCallback() {
-                @Override
-                public void onScanResult(int callbackType, ScanResult result) {
-                    super.onScanResult(callbackType, result);
-                }
-            });
-        }
 
+            return value;
+        }
+        bluetoothAdapter.getBluetoothLeScanner().stopScan(new ScanCallback() {
+            @Override
+            public void onScanResult(int callbackType, ScanResult result) {
+                super.onScanResult(callbackType, result);
+            }
+        });
+
+        return value;
     }
 
     public boolean isBluetoothEnabled() {
         return bluetoothAdapter.isEnabled();
     }
+
 }
 
 

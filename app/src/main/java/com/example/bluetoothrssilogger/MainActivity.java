@@ -17,8 +17,6 @@ import com.example.util.BluetoothUtilManager;
 import com.example.util.Constants;
 import com.example.util.Util;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
@@ -43,7 +41,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         scanDevTv = findViewById(R.id.scanDevTv);
         scanDevLv = findViewById(R.id.scanDevLv);
 
-        ArrayList<HashMap<String, BluetoothDevice>> arrayList = new ArrayList<>();
         arrayAdapter = new ArrayAdapter<BluetoothDevice>(this, android.R.layout.simple_list_item_1);
         scanDevLv.setAdapter(arrayAdapter);
         scanDevLv.setOnItemClickListener(this);
