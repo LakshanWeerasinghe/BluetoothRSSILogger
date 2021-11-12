@@ -5,4 +5,7 @@
     <string name="discoverable">Discoverable</string>
     <string name="get_paired_devices">Get Paired Devices</string>
     <string name="view_rssi">View RSSI</string>
+    <string name="device_name">Device Name</string>
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
 </resources>

@@ -14,6 +14,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.util.BluetoothUtilManager;
+import com.example.util.Constants;
 import com.example.util.Util;
 
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         offBtn = findViewById(R.id.offBtn);
         scanBtn = findViewById(R.id.scanBtn);
         scanDevTv = findViewById(R.id.scanDevTv);
-        scanDevLv = (ListView) findViewById(R.id.scanDevLv);
+        scanDevLv = findViewById(R.id.scanDevLv);
 
         ArrayList<HashMap<String, BluetoothDevice>> arrayList = new ArrayList<>();
         arrayAdapter = new ArrayAdapter<BluetoothDevice>(this, android.R.layout.simple_list_item_1);
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         onBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                bluetoothUtilManager.switchOnBluetooth(getMainActivity());
+                bluetoothUtilManager.switchOnBluetooth(MainActivity.this);
             }
         });
 
@@ -62,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         offBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                bluetoothUtilManager.switchOffBluetooth(getMainActivity());
+                bluetoothUtilManager.switchOffBluetooth(MainActivity.this);
             }
         });
 
@@ -74,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                 arrayAdapter.clear();
                 Set<BluetoothDevice> devices = bluetoothUtilManager
-                        .getScanDevices(getMainActivity());
+                        .getScanDevices(MainActivity.this);
                 if (devices == null) {
                     scanDevTv.setText("");
                 } else {
@@ -85,10 +86,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
             }
         });
-    }
-
-    private MainActivity getMainActivity() {
-        return this;
     }
 
     @Override
@@ -109,10 +106,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        BluetoothDevice item = arrayAdapter.getItem(i);
-        Util.showToast(this, "You selected: " + item.getName());
+        BluetoothDevice bluetoothDevice = arrayAdapter.getItem(i);
+        Util.showToast(this, "You selected: " + bluetoothDevice.getName());
 
         Intent intent = new Intent(MainActivity.this, ActivityTwo.class);
+        intent.putExtra(Constants.DEVICE_MAC_ADDRESS, bluetoothDevice.getAddress());
+        intent.putExtra(Constants.DEVICE_NAME, bluetoothDevice.getName());
         startActivity(intent);
     }
 
