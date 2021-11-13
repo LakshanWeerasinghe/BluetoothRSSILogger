@@ -1,6 +1,8 @@
 package com.example.bluetoothrssilogger;
 
+import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -16,12 +18,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.util.BluetoothUtilManager;
 import com.example.util.Constants;
-import com.example.util.RSSILoggerThread;
 import com.example.util.Util;
 
 public class ActivityTwo extends AppCompatActivity {
 
-    private RSSILoggerThread rssiLoggerThread;
 
     private BluetoothUtilManager bluetoothUtilManager;
     private String selectedDeviceMACAddress;
@@ -32,6 +32,8 @@ public class ActivityTwo extends AppCompatActivity {
 
     private ArrayAdapter<Integer> arrayAdapter;
     private boolean log = false;
+
+    private Thread runnable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,8 +61,10 @@ public class ActivityTwo extends AppCompatActivity {
         logResultLv.setAdapter(arrayAdapter);
 
 
-
         bluetoothUtilManager = BluetoothUtilManager.getInstance();
+
+        registerReceiver(bluetoothUtilManager.getReceiver(),
+                new IntentFilter(BluetoothDevice.ACTION_FOUND));
 
         Handler handler = new Handler(Looper.getMainLooper()) {
             @Override
@@ -68,20 +72,28 @@ public class ActivityTwo extends AppCompatActivity {
                 super.handleMessage(msg);
                 Bundle bb = msg.getData();
                 Integer rssiValue = bb.getInt(Constants.RSSI_KEY);
-                activityTwoTitleTv.setText(rssiValue.toString());
                 arrayAdapter.add(rssiValue);
             }
         };
-
-        rssiLoggerThread = new RSSILoggerThread(handler, this, selectedDeviceMACAddress);
-
-
 
         startLogBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 log = true;
-                new Thread(rssiLoggerThread).start();
+                runnable = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            while (log) {
+                                bluetoothUtilManager.scanDevices(handler, selectedDeviceMACAddress);
+                                Thread.sleep(5000);
+                            }
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                runnable.start();
             }
         });
 
@@ -89,9 +101,11 @@ public class ActivityTwo extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 log = false;
+                runnable.interrupt();
             }
         });
     }
+
 
     public boolean getLogStatus() {
         return log;
